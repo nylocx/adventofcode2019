@@ -1,4 +1,4 @@
-# %% Integer optcode computer
+# %% Integer opcode computer
 from typing import List
 
 
