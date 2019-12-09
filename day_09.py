@@ -1,9 +1,9 @@
 # %% Integer opcode computer
+from collections import defaultdict
 from typing import Iterable, List
-from itertools import permutations
 
 
-def get_parameters(seq, pointer, opmodes, number, base = 0):
+def get_parameters(seq, pointer, opmodes, number, base):
     result = []
     for i in range(number):
         if opmodes[i] == 0:
@@ -13,7 +13,7 @@ def get_parameters(seq, pointer, opmodes, number, base = 0):
         elif opmodes[i] == 2:
             result.append(seq[seq[pointer + i + 1] + base])
         else:
-            print("Error in opmode")
+            print("invalid opmode")
     return result
 
 
@@ -23,12 +23,14 @@ def run_program(program_code: List[int], program_input: Iterable[int]) -> int:
     pointer = 0
     base = 0
     while (opcode := program_code[pointer] % 100) != 99:
-        opmodes = [program_code[pointer] // 10 ** n % 10 for n in range(2, 4)]
+        opmodes = [program_code[pointer] // 10 ** n % 10 for n in range(2, 5)]
         if opcode == 1 or opcode == 2:
             op1, op2 = get_parameters(program_code, pointer, opmodes, 2, base)
-            program_code[program_code[pointer + 3]] = op1 + op2 if opcode == 1 else op1 * op2
+            idx = program_code[pointer + 3] + (base if opmodes[2] else 0)
+            program_code[idx] = op1 + op2 if opcode == 1 else op1 * op2
         elif opcode == 3:
-            program_code[program_code[pointer + 1]] = next(input_iter)
+            idx = program_code[pointer + 1] + (base if opmodes[0] else 0)
+            program_code[idx] = next(input_iter)
         elif opcode == 4:
             out = get_parameters(program_code, pointer, opmodes, 1, base)[0]
             yield out
@@ -41,34 +43,19 @@ def run_program(program_code: List[int], program_input: Iterable[int]) -> int:
         elif opcode == 7 or opcode == 8:
             op1, op2 = get_parameters(program_code, pointer, opmodes, 2, base)
             switch = op1 < op2 if opcode == 7 else op1 == op2
-            program_code[program_code[pointer + 3]] = 1 if switch else 0
+            idx = program_code[pointer + 3] + (base if opmodes[2] else 0)
+            program_code[idx] = 1 if switch else 0
         elif opcode == 9:
-            print(pointer, opmodes, 1, base)
-            base += get_parameters(program_code, pointer, opmodes, 1, base)[0]
+            op = get_parameters(program_code, pointer, opmodes, 1, base)[0]
+            base += op
         else:
             print("Unknown opcode")
         pointer += increments[opcode]
 
 
-def amplifiers(program, sequence, feedback = 0):
-    def amplifier_input(index):
-        yield sequence[index]
-
-        if index == 0:
-            while True:
-                yield feedback
-
-        yield from run_program(program.copy(), amplifier_input(index - 1))
-
-    for feedback in run_program(program.copy(), amplifier_input(len(sequence) - 1)):
-        pass
-
-    return feedback
-
-
 with open("day_09.input", "r") as input_data:
-    program = [int(x) for x in input_data.readline().split(",")] + [0] * 100000
+    program = defaultdict(int, {i: int(x) for i, x in enumerate(input_data.readline().split(","))})
 
-output = next(run_program(program, [1]))
+print(f"Part 1: BOOST output {next(run_program(program.copy(), [1]))}")
 
-print(f"Part 1: BOOST output is {output}")
+print(f"Part 2: BOOST output {next(run_program(program.copy(), [2]))}")
