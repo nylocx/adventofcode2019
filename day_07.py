@@ -1,13 +1,13 @@
 # %% Integer opcode computer
-from typing import Iterable, List
 from itertools import permutations
+from typing import Iterable, List
 
 
 def get_parameters(seq, pointer, opmodes, number):
     return [seq[pointer + i + 1] if opmodes[i] else seq[seq[pointer + i + 1]] for i in range(number)]
 
 
-def run_program(program_code: List[int], program_input: Iterable[int]) -> int:
+def run_program(program_code: List[int], program_input: Iterable[int]) -> Iterable:
     increments = {1: 4, 2: 4, 3: 2, 4: 2, 5: 3, 6: 3, 7: 4, 8: 4}
     input_iter = iter(program_input)
     pointer = 0
@@ -15,7 +15,8 @@ def run_program(program_code: List[int], program_input: Iterable[int]) -> int:
         opmodes = [program_code[pointer] // 10 ** n % 10 for n in range(2, 4)]
         if opcode == 1 or opcode == 2:
             op1, op2 = get_parameters(program_code, pointer, opmodes, 2)
-            program_code[program_code[pointer + 3]] = op1 + op2 if opcode == 1 else op1 * op2
+            program_code[
+                program_code[pointer + 3]] = op1 + op2 if opcode == 1 else op1 * op2
         elif opcode == 3:
             program_code[program_code[pointer + 1]] = next(input_iter)
         elif opcode == 4:
