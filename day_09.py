@@ -17,7 +17,7 @@ def get_parameters(seq, pointer, opmodes, number, base):
     return result
 
 
-def run_program(program_code: List[int], program_input: Iterable[int]) -> int:
+def run_program(program_code: List[int], program_input: Iterable[int]) -> Iterable[int]:
     increments = {1: 4, 2: 4, 3: 2, 4: 2, 5: 3, 6: 3, 7: 4, 8: 4, 9: 2}
     input_iter = iter(program_input)
     pointer = 0
