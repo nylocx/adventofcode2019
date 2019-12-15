@@ -1,7 +1,7 @@
 # %% Integer opcode computer
 from __future__ import annotations
 from collections import defaultdict
-from itertools import repeat, tee, islice
+from itertools import tee, islice
 from typing import Iterable, List
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
