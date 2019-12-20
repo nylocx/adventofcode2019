@@ -95,8 +95,37 @@ def run_arcade(arcade_program):
 
     return tile_map
 
+
+def run_arcade2(arcade_program):
+    def input_generator():
+        while True:
+            if ball_x < paddle_x:
+                yield -1
+            elif ball_x > paddle_x:
+                yield 1
+            else:
+                yield 0
+    a, b, c = tee(run_program(arcade_program, input_generator()), 3)
+    next(b, None)
+    next(c, None)
+    next(c, None)
+    paddle_x = None
+    ball_x = None
+    score = 0
+    for x, y, tile_id in islice(zip(a, b, c), None, None, 3):
+        if x < 0:
+            score = tile_id
+        elif tile_id == 4:
+            ball_x = x
+        elif tile_id == 3:
+            paddle_x = x
+
+    return score
+
+
 tile_map = run_arcade(program.copy())
 print(f"Part 1: Number of tiles {len([x for x in tile_map.values() if x == 2])}")
 program[0] = 2
-tile_map = run_arcade(program.copy())
+final_score = run_arcade2(program.copy())
+print(f"Part 2: Final score is {final_score}")
 
